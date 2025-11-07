@@ -5,6 +5,7 @@ import requests
 import jq
 import configparser
 import logging
+import time
 
 RECONCILE_MAP = {
     "kingdom": "kingdom_name",
@@ -33,6 +34,7 @@ def process_reconcile(value, stats, logger):
     logger.debug(f"API URL: {url}")
 
     response = requests.get(url)
+    time.sleep(0.5)  # Throttle to prevent API rate limiting
     resp_json = response.json()
 
     # Use "best" match strategy (hardcoded)
@@ -52,6 +54,7 @@ def process_reconcile(value, stats, logger):
                 data[RECONCILE_MAP['namecode']] = res['accepted_namecode']
                 data[RECONCILE_MAP['source']] = res['source']
                 resp2 = requests.get(f"https://api.taicol.tw/v2/higherTaxa?taxon_id={res['accepted_namecode']}")
+                time.sleep(0.5)  # Throttle to prevent API rate limiting
                 resp2_json = resp2.json()
                 for x in resp2_json['data']:
                     if x['rank'] in RECONCILE_MAP2:
